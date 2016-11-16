@@ -1,5 +1,6 @@
 import copy
 
+
 class graph:
     def __init__(self):
         self.vertices = []
@@ -13,7 +14,7 @@ class graph:
         e = int(f.readline())
         for x in range(e):
             s = f.readline().split()
-            self.edgelist.append((int(s[0])-1, int(s[1])-1))
+            self.edgelist.append((int(s[0]) - 1, int(s[1]) - 1))
 
     @staticmethod
     def edge_length(vertices, e):
@@ -38,29 +39,39 @@ class graph:
                 return False
         return True
 
-
-
-    def min_bandwidth(self, k, solution):
-
-        if graph.bandwidth(self.edgelist,self.vertices)>= graph.bandwidth(self.edgelist,solution):
+    def min_bandwidth(self, k, solution, max):
+        if k > len(self.vertices):
             return
+        candidates = []
+
+        max = graph.bandwidth(self.edgelist, solution)
         if self.is_solution():
             solution.clear()
             solution.extend(self.vertices)
             return
-        for i in range(len(self.vertices)):
-            if i not in self.vertices:
-                self.vertices[k] = i
-                graph.min_bandwidth(self,k+1,solution)
-                self.vertices[k] = - 1
+        self.candidates(k, candidates, max)
+        for i in range(len(candidates)):
+            self.vertices[k] = candidates[i]
+            graph.min_bandwidth(self, k + 1, solution, max)
+            self.vertices[k] = - 1
 
-    def candidates(self,k,candidates,n,max):
+    def candidates(self, k, candidates, max):
+        for i in range(len(self.vertices)):
+            candidates.append(i)
         for e in self.edgelist:
             u, v = e
-            for i in range(n):
-                if k==u and self.vertices[v] != -1 and abs(i-self.vertices[v]-i)<max:
-                    candidates.append(i)
+            if (k != u and self.vertices[u] != -1):
+                if self.vertices[u] in candidates:
+                    candidates.remove(self.vertices[u])
+            if (k != v and self.vertices[v] != -1):
+                if self.vertices[v] in candidates:
+                    candidates.remove(self.vertices[v])
+            for i in range(len(self.vertices)):
 
-                elif k==v and self.vertices[u] !=-1 and abs(self.vertices[u]-i)<max:
-                    candidates.append(i)
+                if (k == u and self.vertices[v] != -1 and abs(self.vertices[v] - i) >= max):
+                    if i in candidates:
+                        candidates.remove(i)
 
+                elif (k == v and self.vertices[u] != -1 and abs(self.vertices[u] - i) >= max):
+                    if i in candidates:
+                        candidates.remove(i)
